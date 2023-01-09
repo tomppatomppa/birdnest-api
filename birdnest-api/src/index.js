@@ -5,16 +5,17 @@ const data = [{ id: 1, name: 'Bird' }]
 const resolvers = {
   Query: {
     allBirds: () => data,
+    findBird: (root, args) => data.find((b) => b.name === args.name),
   },
 }
 const typeDefs = gql`
   type Bird {
     name: String!
-
     id: ID!
   }
   type Query {
     allBirds: [Bird!]!
+    findBird(name: String): Bird!
   }
 `
 const server = new ApolloServer({
