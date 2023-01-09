@@ -2,7 +2,7 @@
   "name": "birdnest-api",
   "version": "1.0.0",
   "main": "index.js",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./src/index.js",
@@ -10,7 +10,16 @@
   },
   "author": "tomi west",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "apollo-server": "^3.10.1",
+    "body-parser": "^1.20.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "graphql": "^16.6.0",
+    "mongoose": "^6.8.3",
+    "node-fetch": "^3.3.0"
+  },
   "devDependencies": {
     "nodemon": "^2.0.20"
   },
