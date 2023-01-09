@@ -10,7 +10,7 @@ import dotenv from 'dotenv'
 import { parseXmlToJsonObject } from '../../config/utils.js'
 import { pilotsBaseUrl } from '../../config/constants.js'
 
-import { PubSub } from 'graphql-subscriptions'
+import { PubSub, withFilter } from 'graphql-subscriptions'
 const pubsub = new PubSub()
 
 dotenv.config()
@@ -76,11 +76,15 @@ const findOrCreateDrone = async (drone) => {
   return droneExists
 }
 export const typeDefs = gql`
+  type updatedPilot {
+    url: String
+    pilot: Pilot
+  }
   extend type Query {
     getSensorData(apiKey: String!): String
   }
   extend type Subscription {
-    pilotUpdated: String
+    pilotUpdated(nestUrl: String): updatedPilot
   }
 `
 export const resolvers = {
@@ -116,15 +120,20 @@ export const resolvers = {
            * $addToSet to avoid duplicate data
            */
           if (droneExists.confirmedDistance < firstNest.noFlyZoneMeters) {
-            await Nest.findOneAndUpdate(
+            const { url } = await Nest.findOneAndUpdate(
               { _id: firstNest._id },
               { $addToSet: { violations: pilot } },
               { returnDocument: 'after' }
             )
+            const pilotTobePublished = await pilot.populate('drone')
+            const pilotUpdated = {
+              url,
+              pilot: pilotTobePublished,
+            }
+
             pubsub.publish('PILOT_UPDATED', {
-              pilotUpdated: 'update',
+              pilotUpdated: pilotUpdated,
             })
-            console.log('Send pilot data to client')
           }
         })
       )
@@ -134,7 +143,13 @@ export const resolvers = {
   },
   Subscription: {
     pilotUpdated: {
-      subscribe: () => pubsub.asyncIterator(['PILOT_UPDATED']),
+      subscribe: withFilter(
+        () => pubsub.asyncIterator('PILOT_UPDATED'),
+        (payload, variables) => {
+          console.log(payload)
+          return payload.pilotUpdated.url === variables.nestUrl
+        }
+      ),
     },
   },
 }
