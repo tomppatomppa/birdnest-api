@@ -146,7 +146,6 @@ export const resolvers = {
       subscribe: withFilter(
         () => pubsub.asyncIterator('PILOT_UPDATED'),
         (payload, variables) => {
-          console.log(payload)
           return payload.pilotUpdated.url === variables.nestUrl
         }
       ),

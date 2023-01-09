@@ -9,7 +9,7 @@ export const typeDefs = gql`
   }
   extend type Query {
     getBirds: [Bird!]
-    getBird(name: String!): Bird!
+    getBird(name: String!, nests: Boolean): Bird!
   }
 `
 
@@ -19,16 +19,19 @@ export const resolvers = {
       const allBirds = await Bird.find({})
       return allBirds
     },
-    getBird: async (_, { name }) => {
-      const birdFound = await Bird.findOne({ name: name }).populate(
-        'protectedNests'
-      )
+    getBird: async (_, { name, nests }) => {
+      const birdFound = await Bird.findOne({ name: name })
+
       if (!birdFound) {
         throw new ApolloError(
           `No bird with the name ${name} exists in the database`
         )
       }
-      return birdFound
+      if (!nests) {
+        return await Bird.findOne({ name: name })
+      }
+
+      return await Bird.findOne({ name: name }).populate('protectedNests')
     },
   },
 }

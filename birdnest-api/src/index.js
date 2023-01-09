@@ -13,6 +13,7 @@ import cors from 'cors'
 import bodyParser from 'body-parser'
 
 import { typeDefs, resolvers } from './graphql/schema.js'
+import { sendRequestToGraphqlEndpoint } from './config/utils.js'
 
 dotenv.config()
 
@@ -68,6 +69,8 @@ const startServer = async () => {
 }
 
 startServer()
-// server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
-//   console.log(`Server ready at ${url}`)
-// })
+
+//Send request every 2 seconds
+setInterval(() => {
+  sendRequestToGraphqlEndpoint()
+}, 2000)

@@ -1,4 +1,5 @@
 import xml2js from 'xml2js'
+import fetch from 'node-fetch'
 
 export const parseXmlToJsonObject = (body) => {
   let drones
@@ -51,4 +52,21 @@ export const getDistanceFromCenter = (x, y) => {
   let distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
 
   return distance / 1000
+}
+//https://birdnest-api.herokuapp.com/
+export const sendRequestToGraphqlEndpoint = () => {
+  fetch('https://birdnest-api.herokuapp.com/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query: `
+         query getSensorData {
+            getSensorData(apiKey: "123456789") 
+         }
+          `,
+      variables: {},
+    }),
+  })
 }
