@@ -1,6 +1,21 @@
 import { ApolloServer, gql } from 'apollo-server'
+import mongoose from 'mongoose'
+import dotenv from 'dotenv'
+dotenv.config()
 
 const data = [{ id: 1, name: 'Bird' }]
+
+const MONGODB_URI = process.env.MONGODB_URI
+
+console.log('Connecting to', MONGODB_URI)
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => {
+    console.log('connected to MongoDB')
+  })
+  .catch((error) => {
+    console.log('error connection to MongoDB:', error.message)
+  })
 
 const resolvers = {
   Query: {
