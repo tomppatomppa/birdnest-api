@@ -6,6 +6,7 @@ import bird from './queries/Bird.js'
 import nest from './types/Nest.js'
 import pilot from './types/Pilot.js'
 import drone from './types/Drone.js'
+import sensor from './queries/SensorApi.js'
 
 const rootTypeDefs = gql`
   type Query {
@@ -19,5 +20,6 @@ export const typeDefs = [
   nest.typeDefs,
   pilot.typeDefs,
   drone.typeDefs,
+  sensor.typeDefs,
 ]
-export const resolvers = merge(bird.resolvers)
+export const resolvers = merge(bird.resolvers, sensor.resolvers)
