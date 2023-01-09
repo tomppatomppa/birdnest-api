@@ -10,6 +10,9 @@ import dotenv from 'dotenv'
 import { parseXmlToJsonObject } from '../../config/utils.js'
 import { pilotsBaseUrl } from '../../config/constants.js'
 
+import { PubSub } from 'graphql-subscriptions'
+const pubsub = new PubSub()
+
 dotenv.config()
 
 const API_KEY = process.env.API_KEY
@@ -76,6 +79,9 @@ export const typeDefs = gql`
   extend type Query {
     getSensorData(apiKey: String!): String
   }
+  extend type Subscription {
+    pilotUpdated: String
+  }
 `
 export const resolvers = {
   Query: {
@@ -115,12 +121,20 @@ export const resolvers = {
               { $addToSet: { violations: pilot } },
               { returnDocument: 'after' }
             )
+            pubsub.publish('PILOT_UPDATED', {
+              pilotUpdated: 'update',
+            })
             console.log('Send pilot data to client')
           }
         })
       )
 
       return 'Access to call api granted'
+    },
+  },
+  Subscription: {
+    pilotUpdated: {
+      subscribe: () => pubsub.asyncIterator(['PILOT_UPDATED']),
     },
   },
 }

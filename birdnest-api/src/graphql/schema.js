@@ -12,6 +12,9 @@ const rootTypeDefs = gql`
   type Query {
     root: String
   }
+  type Subscription {
+    root: String
+  }
 `
 
 export const typeDefs = [
