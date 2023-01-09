@@ -1,9 +1,10 @@
-import { ApolloServer, gql } from 'apollo-server'
+import { ApolloServer } from 'apollo-server'
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
-dotenv.config()
 
-const data = [{ id: 1, name: 'Bird' }]
+import { typeDefs, resolvers } from './graphql/schema.js'
+
+dotenv.config()
 
 const MONGODB_URI = process.env.MONGODB_URI
 
@@ -17,22 +18,6 @@ mongoose
     console.log('error connection to MongoDB:', error.message)
   })
 
-const resolvers = {
-  Query: {
-    allBirds: () => data,
-    findBird: (root, args) => data.find((b) => b.name === args.name),
-  },
-}
-const typeDefs = gql`
-  type Bird {
-    name: String!
-    id: ID!
-  }
-  type Query {
-    allBirds: [Bird!]!
-    findBird(name: String): Bird!
-  }
-`
 const server = new ApolloServer({
   typeDefs,
   resolvers,
