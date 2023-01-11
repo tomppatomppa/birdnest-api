@@ -8,16 +8,20 @@ import Nest from '../../models/Nest.js'
 import fetch from 'node-fetch'
 import dotenv from 'dotenv'
 import { parseXmlToJsonObject } from '../../config/utils.js'
-import { pilotsBaseUrl } from '../../config/constants.js'
+import { defaultBird, pilotsBaseUrl } from '../../config/constants.js'
 
 import { PubSub, withFilter } from 'graphql-subscriptions'
+import mongoose from 'mongoose'
 const pubsub = new PubSub()
-
+import { ObjectId } from 'mongoose'
 dotenv.config()
 
 const API_KEY = process.env.API_KEY
 
-const defaultBird = 'Monadikuikka'
+const hasViolatedNoFlyZone = (drone, nest) => {
+  //console.log(drone.confirmedDistance < nest.noFlyZoneMeters)
+  return drone.confirmedDistance < nest.noFlyZoneMeters
+}
 
 const getResponseAsDroneObjects = async (url) => {
   const nestdata = await fetch(`http://${url}`)
@@ -75,6 +79,19 @@ const findOrCreateDrone = async (drone) => {
 
   return droneExists
 }
+
+/**
+ * If pilot has previously violated the no fly zone
+ * update when pilot was last seen
+ */
+const updatePilotLastSeen = async (drone) => {
+  await Pilot.findOneAndUpdate(
+    {
+      drone: drone._id,
+    },
+    { $set: { lastSeen: drone.snapshotTimestamp } }
+  )
+}
 export const typeDefs = gql`
   type updatedPilot {
     url: String
@@ -93,7 +110,7 @@ export const resolvers = {
       if (apiKey !== API_KEY) {
         throw new AuthenticationError('Invalid Api key')
       }
-      //For the sake of the task hardcode to find "Monadinkuikka"
+      //For the sake of the task hardcode to find "Monadikuikka"
       const birdExists = await Bird.findOne({ name: defaultBird }).populate(
         'protectedNests'
       )
@@ -106,35 +123,36 @@ export const resolvers = {
 
       await Promise.allSettled(
         drones.map(async (drone) => {
-          const { snapshotTimestamp } = drone
+          const droneExists = await findOrCreateDrone(drone)
+
+          await updatePilotLastSeen(droneExists)
+
+          //If no violation occured for current drone do nothing
+          if (!hasViolatedNoFlyZone(droneExists, firstNest)) return
+
+          //Only fetch pilot data if a violation occurred
           const result = await getPilotData(drone.serialNumber)
 
-          const droneExists = await findOrCreateDrone(drone)
           const pilot = await findOrCreatePilot(
             result,
-            snapshotTimestamp,
+            drone.snapshotTimestamp,
             droneExists
           )
-          /**
-           * If a violation occured, add the pilot to violations array
-           * $addToSet to avoid duplicate data
-           */
-          if (droneExists.confirmedDistance < firstNest.noFlyZoneMeters) {
-            const { url } = await Nest.findOneAndUpdate(
-              { _id: firstNest._id },
-              { $addToSet: { violations: pilot } },
-              { returnDocument: 'after' }
-            )
-            const pilotTobePublished = await pilot.populate('drone')
-            const pilotUpdated = {
-              url,
-              pilot: pilotTobePublished,
-            }
 
-            pubsub.publish('PILOT_UPDATED', {
-              pilotUpdated: pilotUpdated,
-            })
-          }
+          //Add pilot to nest violations
+          const { url } = await Nest.findOneAndUpdate(
+            { _id: firstNest._id },
+            { $addToSet: { violations: pilot } }
+          )
+
+          const pilotWithDrone = await pilot.populate('drone')
+
+          pubsub.publish('PILOT_UPDATED', {
+            pilotUpdated: {
+              url,
+              pilot: pilotWithDrone,
+            },
+          })
         })
       )
 

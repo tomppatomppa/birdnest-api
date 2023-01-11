@@ -71,6 +71,6 @@ const startServer = async () => {
 startServer()
 
 //Send request every 2 seconds
-// setInterval(() => {
-//   sendRequestToGraphqlEndpoint()
-// }, 2000)
+setInterval(() => {
+  sendRequestToGraphqlEndpoint()
+}, 2000)

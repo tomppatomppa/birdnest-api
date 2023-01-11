@@ -16,7 +16,7 @@ export const typeDefs = gql`
 export const resolvers = {
   Query: {
     getBirds: async () => {
-      const allBirds = await Bird.find({})
+      const allBirds = await Bird.find({}).populate('protectedNests', 'url')
       return allBirds
     },
     getBird: async (_, { name, nests }) => {

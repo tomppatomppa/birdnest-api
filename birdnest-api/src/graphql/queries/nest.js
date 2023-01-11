@@ -1,6 +1,6 @@
 import { gql } from 'apollo-server'
 import Nest from '../../models/Nest.js'
-//getNest(id: String): [Pilot!]
+
 export const typeDefs = gql`
   extend type Query {
     getNest(id: String): Nest!
@@ -13,6 +13,7 @@ const getMinutesBeforeNow = (min) => {
 
   return new Date(modified)
 }
+
 export const resolvers = {
   Query: {
     getNest: async (_, { id }) => {
