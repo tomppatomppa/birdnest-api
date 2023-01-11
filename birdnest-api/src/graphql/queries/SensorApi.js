@@ -11,9 +11,9 @@ import { parseXmlToJsonObject } from '../../config/utils.js'
 import { defaultBird, pilotsBaseUrl } from '../../config/constants.js'
 
 import { PubSub, withFilter } from 'graphql-subscriptions'
-import mongoose from 'mongoose'
+
 const pubsub = new PubSub()
-import { ObjectId } from 'mongoose'
+
 dotenv.config()
 
 const API_KEY = process.env.API_KEY
@@ -28,6 +28,7 @@ const getResponseAsDroneObjects = async (url) => {
   const body = await nestdata.text()
   return parseXmlToJsonObject(body)
 }
+
 const getPilotData = async (serialNumber) => {
   const response = await fetch(`${pilotsBaseUrl}/${serialNumber}`)
 
@@ -39,7 +40,6 @@ const getPilotData = async (serialNumber) => {
   const result = await response.json()
   return result
 }
-
 /**
  * Update Pilot information or, create new if doesn't exists
  * Returns the updated, or new Pilot
@@ -58,6 +58,7 @@ const findOrCreatePilot = async (pilot, lastSeen, drone) => {
   )
   return pilotUpdated
 }
+
 const findOrCreateDrone = async (drone) => {
   let droneExists = await Drone.findOne({
     serialNumber: drone.serialNumber,
@@ -98,7 +99,7 @@ export const typeDefs = gql`
     pilot: Pilot
   }
   extend type Query {
-    getSensorData(apiKey: String!): String
+    getSensorData(apiKey: ID!): String
   }
   extend type Subscription {
     pilotUpdated(nestUrl: String): updatedPilot
@@ -147,6 +148,7 @@ export const resolvers = {
 
           const pilotWithDrone = await pilot.populate('drone')
 
+          //Add url to identify pubsub
           pubsub.publish('PILOT_UPDATED', {
             pilotUpdated: {
               url,
