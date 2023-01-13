@@ -7,6 +7,7 @@ import Drone from '../../models/Drone.js'
 import Nest from '../../models/Nest.js'
 import fetch from 'node-fetch'
 import dotenv from 'dotenv'
+
 import { parseXmlToJsonObject } from '../../config/utils.js'
 import { defaultBird, pilotsBaseUrl } from '../../config/constants.js'
 
@@ -22,12 +23,21 @@ const hasViolatedNoFlyZone = (drone, nest) => {
   return drone.confirmedDistance < nest.noFlyZoneMeters
 }
 
+/**
+ * @param {*} url endpoint that publishes drone data
+ * @returns An array of drone objects
+ */
 const getResponseAsDroneObjects = async (url) => {
   const nestdata = await fetch(`http://${url}`)
   const body = await nestdata.text()
+
   return parseXmlToJsonObject(body)
 }
 
+/**
+ * @param {*} serialNumber of a drone
+ * @returns  Information about drone owner if available
+ */
 const getPilotData = async (serialNumber) => {
   const response = await fetch(`${pilotsBaseUrl}/${serialNumber}`)
 
@@ -70,9 +80,7 @@ const findOrCreateDrone = async (drone) => {
     })
     await droneExists.save()
   } else if (drone.confirmedDistance < droneExists.confirmedDistance) {
-    /**
-     * if distance is less then previously, update closest confirmed distance
-     */
+    // if distance is less then previously, update closest confirmed distance
     droneExists.confirmedDistance = drone.confirmedDistance
     await droneExists.save()
   }
@@ -112,15 +120,20 @@ export const resolvers = {
       if (apiKey !== API_KEY) {
         throw new AuthenticationError('Invalid Api key')
       }
-      //For the sake of the task hardcode to find "Monadikuikka"
+      //For the sake of the task, hardcode to find "Monadikuikka"
       const birdExists = await Bird.findOne({ name: defaultBird }).populate(
         'protectedNests'
       )
-      if (!birdExists) {
-        throw new GraphQLError(`Bird ${defaultBird} does not exist`)
-      }
       //Get the first nest
       const [firstNest] = birdExists.protectedNests
+
+      if (!birdExists || !firstNest) {
+        throw new GraphQLError(
+          `Bird ${defaultBird}, or Nest ${firstNest} does not exist`
+        )
+      }
+
+      //Fetch drone data from url
       const drones = await getResponseAsDroneObjects(firstNest.url)
 
       await Promise.allSettled(
@@ -141,19 +154,18 @@ export const resolvers = {
             droneExists
           )
 
-          //Add pilot to nest violations
+          //Add pilot to Nest violations
           const { url } = await Nest.findOneAndUpdate(
             { _id: firstNest._id },
             { $addToSet: { violations: pilot } }
           )
 
-          const pilotWithDrone = await pilot.populate('drone')
-
+          pilot.drone = droneExists //add drone data for publishing
           //Add url to identify pubsub
           pubsub.publish('PILOT_UPDATED', {
             pilotUpdated: {
               url,
-              pilot: pilotWithDrone,
+              pilot,
             },
           })
         })

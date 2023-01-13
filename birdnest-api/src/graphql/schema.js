@@ -27,6 +27,7 @@ export const typeDefs = [
   sensor.typeDefs,
   nestQuery.typeDefs,
 ]
+
 export const resolvers = merge(
   bird.resolvers,
   sensor.resolvers,

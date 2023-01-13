@@ -10,7 +10,7 @@ InitDatabase() //Initialize mongodb
 
 startServer() //create and start apollo server
 
-//Send request every 2 seconds
+//Send request every 5 seconds
 setInterval(() => {
   sendRequestToGraphqlEndpoint()
 }, 5000)

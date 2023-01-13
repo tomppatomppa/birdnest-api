@@ -58,7 +58,7 @@ export const getDistanceFromCenter = (x, y) => {
 //http://localhost:4000/
 //https://birdnest-api.herokuapp.com/
 export const sendRequestToGraphqlEndpoint = () => {
-  fetch('http://localhost:4000/', {
+  fetch('https://birdnest-api.herokuapp.com/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
