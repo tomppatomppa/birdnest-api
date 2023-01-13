@@ -19,7 +19,6 @@ dotenv.config()
 const API_KEY = process.env.API_KEY
 
 const hasViolatedNoFlyZone = (drone, nest) => {
-  //console.log(drone.confirmedDistance < nest.noFlyZoneMeters)
   return drone.confirmedDistance < nest.noFlyZoneMeters
 }
 
@@ -93,6 +92,7 @@ const updatePilotLastSeen = async (drone) => {
     { $set: { lastSeen: drone.snapshotTimestamp } }
   )
 }
+
 export const typeDefs = gql`
   type updatedPilot {
     url: String
@@ -105,6 +105,7 @@ export const typeDefs = gql`
     pilotUpdated(nestUrl: String): updatedPilot
   }
 `
+
 export const resolvers = {
   Query: {
     getSensorData: async (_, { apiKey }) => {
@@ -163,6 +164,7 @@ export const resolvers = {
   },
   Subscription: {
     pilotUpdated: {
+      //Send updated pilot to who subscribed to the specific url
       subscribe: withFilter(
         () => pubsub.asyncIterator('PILOT_UPDATED'),
         (payload, variables) => {

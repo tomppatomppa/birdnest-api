@@ -15,7 +15,6 @@ export const parseXmlToJsonObject = (body) => {
     drones = obj.report.capture[0].drone.map((drone) => {
       return parseDroneFields(drone, snapshotTimestamp)
     })
-    //console.log(util.inspect(drones, false, null))
   })
   return drones
 }
@@ -45,6 +44,7 @@ export const parseDroneFields = (drone, snapshotTimestamp) => {
   }
   return droneObjectParsed
 }
+
 export const getDistanceFromCenter = (x, y) => {
   const centerX = 250000
   const centerY = 250000
@@ -58,7 +58,7 @@ export const getDistanceFromCenter = (x, y) => {
 //http://localhost:4000/
 //https://birdnest-api.herokuapp.com/
 export const sendRequestToGraphqlEndpoint = () => {
-  fetch('https://birdnest-api.herokuapp.com/', {
+  fetch('http://localhost:4000/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -8,6 +8,7 @@ import pilot from './types/Pilot.js'
 import drone from './types/Drone.js'
 import sensor from './queries/SensorApi.js'
 import nestQuery from './queries/nest.js'
+
 const rootTypeDefs = gql`
   type Query {
     root: String
