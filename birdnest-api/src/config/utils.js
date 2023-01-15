@@ -19,11 +19,6 @@ export const parseXmlToJsonObject = (body) => {
   return drones
 }
 
-/**
- *
- * @param {*} drone
- * @returns A drone object without properties as arrays
- */
 export const parseDroneFields = (drone, snapshotTimestamp) => {
   const droneObjectParsed = {
     serialNumber: drone.serialNumber[0],
@@ -58,7 +53,7 @@ export const getDistanceFromCenter = (x, y) => {
 //http://localhost:4000/
 //https://birdnest-api.herokuapp.com/
 export const sendRequestToGraphqlEndpoint = () => {
-  fetch('https://birdnest-api.herokuapp.com/', {
+  fetch('http://localhost:4000/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

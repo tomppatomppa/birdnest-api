@@ -79,8 +79,8 @@ const findOrCreateDrone = async (drone) => {
       ...drone,
     })
     await droneExists.save()
-  } else if (drone.confirmedDistance < droneExists.confirmedDistance) {
     // if distance is less then previously, update closest confirmed distance
+  } else if (drone.confirmedDistance < droneExists.confirmedDistance) {
     droneExists.confirmedDistance = drone.confirmedDistance
     await droneExists.save()
   }
@@ -89,8 +89,8 @@ const findOrCreateDrone = async (drone) => {
 }
 
 /**
- * If pilot has previously violated the no fly zone
- * update when pilot was last seen
+ * If pilot has previously violated the no fly zone,
+ * update pilot last seen
  */
 const updatePilotLastSeen = async (drone) => {
   await Pilot.findOneAndUpdate(
@@ -124,7 +124,8 @@ export const resolvers = {
       const birdExists = await Bird.findOne({ name: defaultBird }).populate(
         'protectedNests'
       )
-      //Get the first nest
+
+      //Let's assume there is only one nest
       const [firstNest] = birdExists.protectedNests
 
       if (!birdExists || !firstNest) {
@@ -133,7 +134,6 @@ export const resolvers = {
         )
       }
 
-      //Fetch drone data from url
       const drones = await getResponseAsDroneObjects(firstNest.url)
 
       await Promise.allSettled(
@@ -146,28 +146,33 @@ export const resolvers = {
           if (!hasViolatedNoFlyZone(droneExists, firstNest)) return
 
           //Only fetch pilot data if a violation occurred
-          const result = await getPilotData(drone.serialNumber)
 
-          const pilot = await findOrCreatePilot(
-            result,
-            drone.snapshotTimestamp,
-            droneExists
-          )
+          try {
+            const result = await getPilotData(drone.serialNumber)
 
-          //Add pilot to Nest violations
-          const { url } = await Nest.findOneAndUpdate(
-            { _id: firstNest._id },
-            { $addToSet: { violations: pilot } }
-          )
+            const pilot = await findOrCreatePilot(
+              result,
+              drone.snapshotTimestamp,
+              droneExists
+            )
 
-          pilot.drone = droneExists //add drone data for publishing
-          //Add url to identify pubsub
-          pubsub.publish('PILOT_UPDATED', {
-            pilotUpdated: {
-              url,
-              pilot,
-            },
-          })
+            //Add pilot to Nest violations
+            const { url } = await Nest.findOneAndUpdate(
+              { _id: firstNest._id },
+              { $addToSet: { violations: pilot } }
+            )
+
+            pilot.drone = droneExists
+
+            pubsub.publish('PILOT_UPDATED', {
+              pilotUpdated: {
+                url,
+                pilot,
+              },
+            })
+          } catch (error) {
+            return error.message
+          }
         })
       )
 
@@ -176,7 +181,7 @@ export const resolvers = {
   },
   Subscription: {
     pilotUpdated: {
-      //Send updated pilot to who subscribed to the specific url
+      //Send updated pilot to all who subscribed to the specific url
       subscribe: withFilter(
         () => pubsub.asyncIterator('PILOT_UPDATED'),
         (payload, variables) => {
