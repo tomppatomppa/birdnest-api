@@ -11,7 +11,7 @@ import cors from 'cors'
 import bodyParser from 'body-parser'
 import { typeDefs, resolvers } from '../graphql/schema.js'
 
-export const startServer = async () => {
+export const createApolloServer = async () => {
   const app = express()
   const httpServer = http.createServer(app)
   const schema = makeExecutableSchema({ typeDefs, resolvers })

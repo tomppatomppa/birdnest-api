@@ -145,8 +145,6 @@ export const resolvers = {
           //If no violation occured for current drone do nothing
           if (!hasViolatedNoFlyZone(droneExists, firstNest)) return
 
-          //Only fetch pilot data if a violation occurred
-
           try {
             const result = await getPilotData(drone.serialNumber)
 

@@ -2,13 +2,13 @@ import dotenv from 'dotenv'
 
 import { sendRequestToGraphqlEndpoint } from './config/utils.js'
 import { InitDatabase } from './config/db.js'
-import { startServer } from './config/createApolloServer.js'
+import { createApolloServer } from './config/apolloServer.js'
 
 dotenv.config()
 
 InitDatabase() //Initialize mongodb
 
-startServer() //create and start apollo server
+createApolloServer() //create and start apollo server
 
 //Send request every 5 seconds
 setInterval(() => {

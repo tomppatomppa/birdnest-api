@@ -1,6 +1,7 @@
 import xml2js from 'xml2js'
 import fetch from 'node-fetch'
 import dotenv from 'dotenv'
+
 dotenv.config()
 
 export const parseXmlToJsonObject = (body) => {
@@ -50,10 +51,9 @@ export const getDistanceFromCenter = (x, y) => {
 
   return distance / 1000
 }
-//http://localhost:4000/
-//https://birdnest-api.herokuapp.com/
+
 export const sendRequestToGraphqlEndpoint = () => {
-  fetch('http://localhost:4000/', {
+  fetch('https://birdnest-api.herokuapp.com/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
