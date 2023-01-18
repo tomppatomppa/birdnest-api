@@ -13,7 +13,8 @@ To preserve the nesting peace, authorities have declared the area within 100 met
 
 The authorities have set up drone monitoring equipment to capture the identifying information broadcasted by the drones in the area, and have given you access to a national drone pilot registry. They now need your help in tracking violations and getting in touch with the offenders.
 
-Frontend for this reposriotry can be found here https://github.com/tomppatomppa/birdnest-app
+<p>Frontend for this repository can be found here https://github.com/tomppatomppa/birdnest-app</p>
+
 This repository contains all the necessary code and resources to set up and run the application.
 
 
