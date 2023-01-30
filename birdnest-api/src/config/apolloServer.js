@@ -42,7 +42,9 @@ export const createApolloServer = async () => {
 
   app.use(
     '/',
-    cors({ origin: ['http://birdnestapplication.online'] }),
+    cors({
+      origin: ['http://birdnestapplication.online', 'http://localhost:3000'],
+    }),
     bodyParser.json(),
     expressMiddleware(server)
   )
