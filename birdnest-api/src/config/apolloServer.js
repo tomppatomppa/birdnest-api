@@ -39,8 +39,13 @@ export const createApolloServer = async () => {
     ],
   })
   await server.start()
-
-  app.use('/', cors(), bodyParser.json(), expressMiddleware(server))
+  const corsOptions = {
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  }
+  app.use('/', cors(corsOptions), bodyParser.json(), expressMiddleware(server))
 
   await new Promise((resolve) =>
     httpServer.listen({ port: process.env.PORT || 4000 }, resolve)
