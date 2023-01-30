@@ -40,12 +40,7 @@ export const createApolloServer = async () => {
   })
   await server.start()
 
-  app.use(
-    '/',
-    cors({ origin: ['http://birdnestapplication.online'] }),
-    bodyParser.json(),
-    expressMiddleware(server)
-  )
+  app.use('/', cors(), bodyParser.json(), expressMiddleware(server))
 
   await new Promise((resolve) =>
     httpServer.listen({ port: process.env.PORT || 4000 }, resolve)
