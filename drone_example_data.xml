@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report>
+   <deviceInformation deviceId="GUARDB1RD">
+      <listenRange>500000</listenRange>
+      <deviceStarted>2023-01-17T14:38:32.768Z</deviceStarted>
+      <uptimeSeconds>8595</uptimeSeconds>
+      <updateIntervalMs>2000</updateIntervalMs>
+   </deviceInformation>
+   <capture snapshotTimestamp="2023-01-17T17:01:48.155Z">
+      <drone>
+         <serialNumber>SN-6Akn4xfieH</serialNumber>
+         <model>Mosquito</model>
+         <manufacturer>MegaBuzzer Corp</manufacturer>
+         <mac>cb:30:1f:b7:91:37</mac>
+         <ipv4>173.226.11.19</ipv4>
+         <ipv6>6d89:5f9d:2d85:1d08:a0b7:92cb:0dfe:d72e</ipv6>
+         <firmware>7.5.4</firmware>
+         <positionY>200346.4336286828</positionY>
+         <positionX>242930.20771022842</positionX>
+         <altitude>4098.35910593472</altitude>
+      </drone>
+      <drone>
+         <serialNumber>SN-sPHWelHjfy</serialNumber>
+         <model>HRP-DRP 1</model>
+         <manufacturer>ProDröne Ltd</manufacturer>
+         <mac>f4:68:bc:29:67:61</mac>
+         <ipv4>138.36.63.166</ipv4>
+         <ipv6>b5ea:a57a:f5a7:7126:5c3b:7056:cbc6:bff2</ipv6>
+         <firmware>5.6.2</firmware>
+         <positionY>380427.9677935534</positionY>
+         <positionX>90637.53317201837</positionX>
+         <altitude>4702.8075681337095</altitude>
+      </drone>
+   </capture>
+</report>
